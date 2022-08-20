@@ -78,6 +78,7 @@ class SDL_Pi_INA3221():
     def __init__(self, twi=1, addr=INA3221_ADDRESS, shunt_resistor=SHUNT_RESISTOR_VALUE):
         self._bus = smbus.SMBus(twi)
         self._addr = addr
+        self._shunt_resistor = shunt_resistor
         config = INA3221_CONFIG_ENABLE_CHAN1 | \
             INA3221_CONFIG_ENABLE_CHAN2 | \
             INA3221_CONFIG_ENABLE_CHAN3 | \
@@ -154,5 +155,5 @@ class SDL_Pi_INA3221():
     def getCurrent_mA(self, channel):
         # Gets the current value in mA, taking into account the config settings and current LSB
 
-        valueDec = self.getShuntVoltage_mV(channel) / SHUNT_RESISTOR_VALUE
+        valueDec = self.getShuntVoltage_mV(channel) / self._shunt_resistor
         return valueDec
