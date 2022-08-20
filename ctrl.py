@@ -1,6 +1,7 @@
 import threading
 import time
 from event import Event
+import RPi.GPIO as GPIO
 
 
 class RelayCtrl:
@@ -8,17 +9,33 @@ class RelayCtrl:
         self.rcfg = rcfg
         self.last_activate = time.time()
         self.safety_time = 1.0
+        GPIO.setwarnings(False)
+        GPIO.setmode(GPIO.BCM)
+        for u, d in zip(rcfg.up_relays, rcfg.down_relays):
+            GPIO.setup(d, GPIO.OUT)
+            GPIO.output(d, GPIO.HIGH)
+            GPIO.setup(u, GPIO.OUT)
+            GPIO.output(u, GPIO.HIGH)
 
     def up(self):
         self.safety_throttle()
-        print("UP")
+        for d in self.rcfg.down_relays:
+            GPIO.output(d, GPIO.HIGH)
+        for u in self.rcfg.up_relays:
+            GPIO.output(u, GPIO.LOW)
 
     def down(self):
         self.safety_throttle()
-        print("DOWN")
+        for u in self.rcfg.up_relays:
+            GPIO.output(u, GPIO.HIGH)
+        for d in self.rcfg.down_relays:
+            GPIO.output(d, GPIO.LOW)
 
     def stop(self):
-        print("STOP")
+        for d in self.rcfg.down_relays:
+            GPIO.output(d, GPIO.HIGH)
+        for u in self.rcfg.up_relays:
+            GPIO.output(u, GPIO.HIGH)
 
     def safety_throttle(self):
         while time.time() - self.last_activate < self.safety_time:

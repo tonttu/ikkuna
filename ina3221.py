@@ -5,7 +5,7 @@ import random
 
 class AmpsReader:
     def __init__(self, resistor=1/30.0):
-        self.ina3221 = SDL_Pi_INA3221(shunt_resistor=resistor)
+        self.ina3221 = SDL_Pi_INA3221.SDL_Pi_INA3221(shunt_resistor=resistor)
 
     def read_ma(self):
         try:
@@ -31,7 +31,7 @@ class MockAmpsReader:
 class AmpsIntegrator:
     def __init__(self, reader):
         self.reader = reader
-        self.zero_current_threshold_a = 0.1
+        self.zero_current_threshold_ma = 100
         self.sample_interval = 1/60.0
 
     def start(self):
@@ -48,6 +48,8 @@ class AmpsIntegrator:
 
         if currents is None:
             return None
+
+        currents = [0 if ma < self.zero_current_threshold_ma else ma for ma in currents]
 
         # Amp seconds
         return [ma/1000.0*dt for ma in currents]

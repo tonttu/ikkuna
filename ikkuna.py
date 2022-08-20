@@ -72,7 +72,7 @@ def publish_pos(pos):
     client.publish("kasvihuone/ikkuna/pos", int(pos), 0, True)
 
 
-relay_cfg = RelayCfg([2, 3, 6], [1, 4, 5],
+relay_cfg = RelayCfg([23, 27, 17], [24, 22, 25],
                      75.4975072, 40.19231742, 30.0)
 relay_ctrl = RelayCtrl(relay_cfg)
 integrator = AmpsIntegrator(AmpsReader())
