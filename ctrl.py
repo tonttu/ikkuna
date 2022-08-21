@@ -97,7 +97,6 @@ class Window(threading.Thread):
             self.go(tgt, up=True)
 
     def go(self, tgt, up):
-        print("Go", tgt, up)
         try:
             if up:
                 self.set_stat("opening")

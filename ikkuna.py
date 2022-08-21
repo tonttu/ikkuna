@@ -1,5 +1,5 @@
 import paho.mqtt.client as mqtt
-import json
+import json, os
 from ctrl import Window, RelayCtrl, RelayCfg
 from ina3221 import AmpsIntegrator, AmpsReader
 
@@ -73,7 +73,7 @@ def publish_pos(pos):
 
 
 relay_cfg = RelayCfg([23, 27, 17], [24, 22, 25],
-                     75.4975072, 40.19231742, 30.0)
+                     60.96426468, 31.64624152, 30.0)
 relay_ctrl = RelayCtrl(relay_cfg)
 integrator = AmpsIntegrator(AmpsReader())
 window = Window(relay_ctrl, integrator)
@@ -85,7 +85,7 @@ client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
 
-client.username_pw_set("mqtt", "")
-client.connect("homeassistant", 1883, 60)
+client.username_pw_set(os.getenv("MQTT_USER"), os.getenv("MQTT_PASSWD"))
+client.connect(os.getenv("MQTT_HOST") , 1883, 60)
 
 client.loop_forever()
