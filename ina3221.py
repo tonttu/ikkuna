@@ -9,11 +9,7 @@ class AmpsReader:
 
     def read_ma(self):
         try:
-            currents = []
-            currents.append(self.ina3221.getCurrent_mA(1))
-            currents.append(self.ina3221.getCurrent_mA(2))
-            currents.append(self.ina3221.getCurrent_mA(3))
-            return currents
+            return [self.ina3221.getCurrent_mA(i + 1) for i in range(3)]
         except OSError:
             return None
 
@@ -23,15 +19,14 @@ class MockAmpsReader:
         pass
 
     def read_ma(self):
-        return [random.uniform(1488.719419 - 700, 1488.719419 + 700),
-                random.uniform(1245.458124 - 700, 1245.458124 + 700),
-                random.uniform(1403.787285 - 700, 1403.787285 + 700)]
+        return [random.uniform(i - 700, i + 700) for i in [1488.7, 1245.5, 1403.8]]
 
 
 class AmpsIntegrator:
     def __init__(self, reader):
         self.reader = reader
         self.zero_current_threshold_ma = 100
+        # Ideally should match the filtering parameters in ina3221
         self.sample_interval = 1/60.0
 
     def start(self):
@@ -49,7 +44,8 @@ class AmpsIntegrator:
         if currents is None:
             return None
 
-        currents = [0 if ma < self.zero_current_threshold_ma else ma for ma in currents]
+        currents = [
+            0 if ma < self.zero_current_threshold_ma else ma for ma in currents]
 
         # Amp seconds
         return [ma/1000.0*dt for ma in currents]

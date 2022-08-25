@@ -1,5 +1,6 @@
 import paho.mqtt.client as mqtt
-import json, os
+import json
+import os
 from ctrl import Window, RelayCtrl, RelayCfg
 from ina3221 import AmpsIntegrator, AmpsReader
 
@@ -40,6 +41,7 @@ def on_connect(client, userdata, flags, rc):
                      ("kasvihuone/ikkuna/set_pos", 0)])
     register_ha_autodiscovery(client)
     client.publish("kasvihuone/ikkuna/stat", window.stat, 0, True)
+    # TODO: Should probably only be online if we can talk to the current sensor
     client.publish("kasvihuone/ikkuna/avty", "online", 0, True)
     client.publish("kasvihuone/ikkuna/pos", window.pos, 0, True)
 
@@ -72,6 +74,7 @@ def publish_pos(pos):
     client.publish("kasvihuone/ikkuna/pos", int(pos), 0, True)
 
 
+# TODO: Should have a configuration file, command line arguments or similar
 relay_cfg = RelayCfg([23, 27, 17], [24, 22, 25],
                      60.96426468, 31.64624152, 30.0)
 relay_ctrl = RelayCtrl(relay_cfg)
@@ -86,6 +89,6 @@ client.on_connect = on_connect
 client.on_message = on_message
 
 client.username_pw_set(os.getenv("MQTT_USER"), os.getenv("MQTT_PASSWD"))
-client.connect(os.getenv("MQTT_HOST") , 1883, 60)
+client.connect(os.getenv("MQTT_HOST"), 1883, 60)
 
 client.loop_forever()
