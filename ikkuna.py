@@ -74,9 +74,12 @@ def publish_pos(pos):
     client.publish("kasvihuone/ikkuna/pos", int(pos), 0, True)
 
 
-# TODO: Should have a configuration file, command line arguments or similar
-relay_cfg = RelayCfg([23, 27, 17], [24, 22, 25],
-                     60.96426468, 31.64624152, 30.0)
+up = [int(x) for x in os.getenv("UP_RELAYS").split(",")]
+down = [int(x) for x in os.getenv("DOWN_RELAYS").split(",")]
+up_as = float(os.getenv("UP_AS") or 60.96426468)
+down_as = float(os.getenv("DOWN_AS") or 31.64624152)
+
+relay_cfg = RelayCfg(up, down, up_as, down_as, 30.0)
 relay_ctrl = RelayCtrl(relay_cfg)
 integrator = AmpsIntegrator(AmpsReader())
 window = Window(relay_ctrl, integrator)
@@ -89,6 +92,6 @@ client.on_connect = on_connect
 client.on_message = on_message
 
 client.username_pw_set(os.getenv("MQTT_USER"), os.getenv("MQTT_PASSWD"))
-client.connect(os.getenv("MQTT_HOST"), 1883, 60)
+client.connect(os.getenv("MQTT_HOST"), int(os.getenv("MQTT_PORT") or 1883), 60)
 
 client.loop_forever()

@@ -25,6 +25,7 @@ docker build -t ikkuna:latest .
 Run:
 
 ```
-docker run -e MQTT_HOST=hostname -e MQTT_USER=user -e MQTT_PASSWD=password -d \
+docker run -e PYTHONUNBUFFERED=1 -e MQTT_HOST=homeassistant -e MQTT_USER=mqtt \
+  -e MQTT_PASSWD=password -e UP_RELAYS=17,25,27 -e DOWN_RELAYS=22,24,23 -d \
   --restart=always --device /dev/gpiomem --device /dev/i2c-1 ikkuna:latest
 ```
