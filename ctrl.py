@@ -59,6 +59,7 @@ class Window(threading.Thread):
         self.target = None
         self.stop_ = False
         self.stat = "stopped"
+        self.running = True
         self.lock = threading.Lock()
         self.cv = threading.Condition(self.lock)
         self.rctrl = rctrl
@@ -67,14 +68,22 @@ class Window(threading.Thread):
         self.on_pos = Event()
         self.start()
 
+    def shutdown(self):
+        with self.lock:
+            self.running = False
+            self.stop_ = True
+            self.target = None
+            self.cv.notify_all()
+
     def run(self):
-        while True:
+        while self.running:
             with self.lock:
-                while self.target is None or (self.pos is not None and abs(self.pos - self.target) < 1.0):
+                while self.running and (self.target is None or (self.pos is not None and abs(self.pos - self.target) < 1.0)):
                     self.cv.wait()
                 tgt = self.target
                 self.target = None
-            self.work(tgt)
+            if tgt is not None:
+                self.work(tgt)
 
     def stop(self):
         with self.lock:

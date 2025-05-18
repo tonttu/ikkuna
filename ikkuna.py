@@ -1,6 +1,7 @@
 import paho.mqtt.client as mqtt
 import json
 import os
+import sys
 from ctrl import Window, RelayCtrl, RelayCfg
 from ina3221 import AmpsIntegrator, AmpsReader
 
@@ -92,6 +93,10 @@ client.on_connect = on_connect
 client.on_message = on_message
 
 client.username_pw_set(os.getenv("MQTT_USER"), os.getenv("MQTT_PASSWD"))
-client.connect(os.getenv("MQTT_HOST"), int(os.getenv("MQTT_PORT") or 1883), 60)
-
-client.loop_forever()
+try:
+    client.connect(os.getenv("MQTT_HOST"), int(os.getenv("MQTT_PORT") or 1883), 60)
+    client.loop_forever()
+except Exception as e:
+    print(f"Error: {e}", file=sys.stderr)
+    window.shutdown()
+    sys.exit(1)
